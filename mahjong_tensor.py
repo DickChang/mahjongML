@@ -58,7 +58,7 @@ def load_data():
     return (train_data, train_labels), (test_data, test_labels)
 
 if __name__ == "__main__":       
-    load_data()
+    (train_data, train_labels), (test_data, test_labels) = load_data()
     print(class_names)
 
 #img = mpimg.imread('./images/mahjong/data_format/bamboo_1_0000019.jpg')
