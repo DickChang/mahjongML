@@ -37,7 +37,7 @@ def rename_files(all_files, tile_accumulator):
         i = 0
         for file in tile_type_files:
             file_split = file.split('_')
-            ext = file.split('.')[1]
+            ext = (file.split('.')[1]).lower()
             new_name = file_split[0] + "_" + file_split[1] + "_" + '%07d' % i + '.' + ext
             #print("Renaming: " + file + " to " + new_name)
             #os.rename(data_dir + file, data_dir + new_name)

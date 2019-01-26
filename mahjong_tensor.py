@@ -43,11 +43,14 @@ def load_data():
         tile_type_filenames = [x for x in all_filenames if (tile_type+"_") in x]
         for filename in tile_type_filenames:
             num_files_loaded += 1
-            loaded_image = mpimg.imread( data_dir + filename )
+            loaded_image = mpimg.imread( data_dir + filename ) # numpy.array
             if '.png' in filename:
-                tile_type_imgs.append(loaded_image)
+                #loaded_image = loaded_image.tolist()
+                loaded_image = loaded_image
             elif '.jpg' in filename:
-                tile_type_imgs.append(np.array(loaded_image, dtype="float") / 255.0 ) # scale jpeg images
+                #loaded_image = (loaded_image/255).tolist() # scale jpg images
+                loaded_image = loaded_image/255 # scale jpg images
+            tile_type_imgs.append(loaded_image.tolist())
             #print(filename + ": " + str(np.array(tile_type_imgs[-1]).shape))
 
         #print(tile_type_filenames)
@@ -63,10 +66,18 @@ def load_data():
             train_labels.append(class_names.index(tile_type))
 
     print("Loaded " + str(num_files_loaded) + " files.")
-    print("Training images shape: " + str(np.array(train_images).shape))
-    print("Training Labels shape: " + str(np.array(train_labels).shape))
-    print("Test images shape: " + str(np.array(test_images).shape))
-    print("Test Labels shape: " + str(np.array(test_labels).shape))
+    #print("Training images shape: " + str(np.array(train_images).shape))
+    #print("Training Labels shape: " + str(np.array(train_labels).shape))
+    #print("Test images shape: " + str(np.array(test_images).shape))
+    #print("Test Labels shape: " + str(np.array(test_labels).shape))
+    train_images = np.array(train_images)
+    train_labels = np.array(train_labels)
+    test_images = np.array(test_images)
+    test_labels = np.array(test_labels)
+    print("Training images shape: " + str(train_images.shape))
+    print("Training Labels shape: " + str(train_labels.shape))
+    print("Test images shape: " + str(test_images.shape))
+    print("Test Labels shape: " + str(test_labels.shape))
     return (train_images, train_labels), (test_images, test_labels)
 
 def plot_single(image, filename):
@@ -97,10 +108,10 @@ if __name__ == "__main__":
     plt.show()
 
     if keras.backend.image_data_format() == 'channels_first':
-        print("channels first")
+        #print("channels first")
         my_shape = (3, None, None)
     elif keras.backend.image_data_format() == 'channels_last':
-        print("channels last")
+        #print("channels last")
         my_shape = (None, None, 3)
     else:
         print("Unknown keras.backend.image_data_format(): " + keras.backend.image_data_format())
@@ -108,9 +119,16 @@ if __name__ == "__main__":
 
     # setup model layers
     model = keras.Sequential([
-        keras.layers.Flatten(input_shape=my_shape),
-        keras.layers.Dense(128, activation=tf.nn.relu),
-        keras.layers.Dense(10, activation=tf.nn.softmax)
+        #keras.layers.Input(shape=my_shape),
+        keras.layers.Conv2D(16, (4,4), activation='elu', input_shape=my_shape),
+        keras.layers.Conv2D(32, (4,4), activation='elu'),
+        keras.layers.Dropout(0.5),
+        keras.layers.Conv2D(64, (4,4), activation='elu'),
+        keras.layers.Dropout(0.5),
+        keras.layers.Conv2D(128, (1,1)),
+        keras.layers.GlobalMaxPooling2D(),
+        #keras.layers.Flatten(),
+        keras.layers.Dense(len(class_names), activation='softmax')
     ])
 
     # compile the model with loss function, optimizer, and metrics
@@ -131,6 +149,9 @@ if __name__ == "__main__":
 
     # make predictions
     predictions = model.predict(test_images)
+
+    print("Exiting.")
+    exit(0)
 
     # look at 0th image and the prediction array
     plot_image_and_values(0, predictions, test_labels, test_images)
