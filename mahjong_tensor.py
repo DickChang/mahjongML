@@ -43,6 +43,8 @@ def load_data():
         tile_type_filenames = [x for x in all_filenames if (tile_type+"_") in x]
         for filename in tile_type_filenames:
             num_files_loaded += 1
+            if num_files_loaded % 100 == 0:
+                print("Images loaded... " + str(num_files_loaded))
             loaded_image = mpimg.imread( data_dir + filename ) # numpy.array
             if '.png' in filename:
                 #loaded_image = loaded_image.tolist()
@@ -50,7 +52,8 @@ def load_data():
             elif '.jpg' in filename:
                 #loaded_image = (loaded_image/255).tolist() # scale jpg images
                 loaded_image = loaded_image/255 # scale jpg images
-            tile_type_imgs.append(loaded_image.tolist())
+            #tile_type_imgs.append(loaded_image.tolist())
+            tile_type_imgs.append(loaded_image)
             #print(filename + ": " + str(np.array(tile_type_imgs[-1]).shape))
 
         #print(tile_type_filenames)
@@ -65,7 +68,7 @@ def load_data():
         for i in range(len(tile_type_imgs)):
             train_labels.append(class_names.index(tile_type))
 
-    print("Loaded " + str(num_files_loaded) + " files.")
+    print("Loaded " + str(num_files_loaded) + " images.")
     #print("Training images shape: " + str(np.array(train_images).shape))
     #print("Training Labels shape: " + str(np.array(train_labels).shape))
     #print("Test images shape: " + str(np.array(test_images).shape))
@@ -75,9 +78,9 @@ def load_data():
     test_images = np.array(test_images)
     test_labels = np.array(test_labels)
     print("Training images shape: " + str(train_images.shape))
-    print("Training Labels shape: " + str(train_labels.shape))
+    print("Training labels shape: " + str(train_labels.shape))
     print("Test images shape: " + str(test_images.shape))
-    print("Test Labels shape: " + str(test_labels.shape))
+    print("Test labels shape: " + str(test_labels.shape))
     return (train_images, train_labels), (test_images, test_labels)
 
 def plot_single(image, filename):
@@ -140,7 +143,7 @@ if __name__ == "__main__":
     # The model learns to associate images and labels.
     # We ask the model to make predictions about a test set - in this example, the test_images array
     #   We verify that the predictions match the labels from the test_labels array.
-    model.fit(train_images, train_labels, epochs=5)
+    model.fit(train_images, train_labels, epochs=5, verbose=1)
 
     # Evaluate accuracy
     # compare how the model performs on the test dataset
